@@ -4,17 +4,67 @@
 // "%s [--debug] [--storage <emmc|ufs>] [--finalize-provisioning] [--include
 // <PATH>] <prog.mbn> [<program> <patch> ...]\n",
 //
-// >>> qdl_run(mbn, prog, patch, debug=False, storage='emmc',
-//             finalize_provisioning=True)
+// >>> qdl_run('emmc', mbn, prog, patch)
 
 static PyObject *qdl_run(PyObject *self, PyObject *args) {
-  const char *command;
-  int sts;
+  const char *storage;
+  const char *mbn;
+  const char *program;
+  const char *patch;
+  int type;
+  int ret;
 
-  if (!PyArg_ParseTuple(args, "s", &command))
+  if (!PyArg_ParseTuple(args, "ssss", &storage, &mbn, &program, &patch))
     return NULL;
-  sts = system(command);
-  return PyLong_FromLong(sts);
+
+  type = detect_type(program);
+  if (type != QDL_FILE_PROGRAM) {
+    PyErr_Format(PyExc_RuntimeError,
+                 "Program passed is not a QDL program. Got type %d", type);
+    return NULL;
+  }
+
+  ret = program_load(program);
+  if (ret < 0) {
+    PyErr_Format(PyExc_RuntimeError, "Program load failed. Error %d", ret);
+    return NULL;
+  }
+
+  type = detect_type(patch);
+  if (type != QDL_FILE_PATCH) {
+    PyErr_Format(PyExc_RuntimeError,
+                 "Patch passed is not a QDL patch. Got type %d", type);
+    return NULL;
+  }
+  ret = patch_load(patch);
+  if (ret < 0) {
+    PyErr_Format(PyExc_RuntimeError, "Patch load failed. Error %d", ret);
+    return NULL;
+  }
+
+  libusb_init(NULL);
+  ret = find_device(&qdl);
+  if (ret) {
+    libusb_exit(NULL);
+    PyErr_Format(PyExc_RuntimeError, "Could not load libusb. Error %d", ret);
+    return NULL;
+  }
+
+  ret = sahara_run(&qdl, mbn);
+  if (ret < 0) {
+    libusb_exit(NULL);
+    PyErr_Format(PyExc_RuntimeError, "Could not run Sahara. Error %d\n", ret);
+    return NULL;
+  }
+
+  ret = firehose_run(&qdl, NULL, storage);
+  if (ret < 0) {
+    libusb_exit(NULL);
+    PyErr_Format(PyExc_RuntimeError, "Could not run Firehose. Error %d\n", ret);
+    return NULL;
+  }
+
+  return NULL;
 }
 
 static PyMethodDef QdlMethods[] = {
