@@ -1,6 +1,8 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
+#include "qdl.h"
+
 // "%s [--debug] [--storage <emmc|ufs>] [--finalize-provisioning] [--include
 // <PATH>] <prog.mbn> [<program> <patch> ...]\n",
 //
@@ -13,6 +15,7 @@ static PyObject *qdl_run(PyObject *self, PyObject *args) {
   const char *patch;
   int type;
   int ret;
+  struct qdl_device qdl;
 
   if (!PyArg_ParseTuple(args, "ssss", &storage, &mbn, &program, &patch))
     return NULL;
@@ -64,7 +67,7 @@ static PyObject *qdl_run(PyObject *self, PyObject *args) {
     return NULL;
   }
 
-  return NULL;
+  return Py_None;
 }
 
 static PyMethodDef QdlMethods[] = {
