@@ -10,8 +10,8 @@ def pkg_config(libs):
         cflags = cflags + subprocess.check_output(['pkg-config', '--cflags', lib], encoding='utf-8').replace('\n', '').split(' ')
         lflags = lflags + subprocess.check_output(['pkg-config', '--libs', lib], encoding='utf-8').replace('\n', '').split(' ')
 
-    cflags = filter(None, cflags)
-    lflags = filter(None, lflags)
+    cflags = [x for x in cflags if x != '']
+    lflags = [x for x in lflags if x != '']
     return (cflags, lflags)
 
 cflags, lflags = pkg_config(['libusb-1.0', 'libxml-2.0'])
