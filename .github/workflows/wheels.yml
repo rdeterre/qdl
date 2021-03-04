@@ -25,7 +25,10 @@ jobs:
 
       - name: Install libusb and libxml2 on Linux
         if: runner.os == 'Linux'
-        run: apt-get update -y
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libusb-1.0-0-dev
+          sudo apt-get install -y libxml2-dev
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
