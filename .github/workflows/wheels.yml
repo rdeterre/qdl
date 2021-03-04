@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-2019, macOS-10.15]
+        os: [macOS-10.15]
 
     steps:
       - uses: actions/checkout@v2
@@ -19,9 +19,13 @@ jobs:
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==1.10.0
 
-      - name: Install libusb
+      - name: Install libusb on macOS
         if: runner.os == 'macOS'
         run: brew install libusb libxml2
+
+      - name: Install libusb and libxml2 on Linux
+        if: runner.os == 'ubuntu'
+        run: apt-get update -y
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
