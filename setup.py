@@ -32,6 +32,6 @@ qdl = Extension('qdl', sources=[
     extra_link_args=lflags)
 
 setup(name = 'qdl',
-      version = '1.0',
+      version = '1.0.1',
       description = 'QDL C wrapper',
       ext_modules = [qdl])
