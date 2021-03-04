@@ -27,7 +27,7 @@ jobs:
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_SKIP: cp27-* cp35* pp*
-          CIBW_BEFORE_ALL_LINUX: yum install -y libusbx-devel libxml2-devel
+          CIBW_BEFORE_ALL_LINUX: yum search libusb && yum install -y libusbx-devel libxml2-devel
 
       - uses: actions/upload-artifact@v2
         with:
