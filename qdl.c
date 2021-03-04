@@ -131,7 +131,7 @@ int parse_sc20_device(libusb_device *device, struct qdl_device *qdl, int *intf,
       for (int e = 0; e < idesc.bNumEndpoints; e++) {
         struct libusb_endpoint_descriptor edesc = idesc.endpoint[e];
 
-        if ((edesc.bmAttributes & 0x3) != LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK)
+        if ((edesc.bmAttributes & 0x3) != LIBUSB_TRANSFER_TYPE_BULK)
           continue;
 
         if (edesc.bEndpointAddress & LIBUSB_ENDPOINT_IN) {
