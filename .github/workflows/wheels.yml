@@ -25,6 +25,8 @@ jobs:
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_BUILD: cp27-* pp*
         # to supply options, put them in 'env', like:
         # env:
         #   CIBW_SOME_OPTION: value
