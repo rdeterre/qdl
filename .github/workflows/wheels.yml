@@ -24,7 +24,7 @@ jobs:
         run: brew install libusb libxml2
 
       - name: Install libusb and libxml2 on Linux
-        if: runner.os == 'ubuntu'
+        if: runner.os == 'Linux'
         run: apt-get update -y
 
       - name: Build wheels
