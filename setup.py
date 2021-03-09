@@ -1,14 +1,17 @@
 from setuptools import setup, Extension
 
+import platform
 import sys
 import subprocess
 
 def pkg_config(libs):
-    cflags = ['-fpic']
-    lflags = ['-static']
+    cflags = []
+    lflags = []
     for lib in libs:
         cflags = cflags + subprocess.check_output(['pkg-config', '--cflags', lib], encoding='utf-8').replace('\n', '').split(' ')
         lflags = lflags + subprocess.check_output(['pkg-config', '--libs', lib], encoding='utf-8').replace('\n', '').split(' ')
+    if platform.system() == 'Darwin':
+        lflags.append('-static')
 
     cflags = [x for x in cflags if x != '']
     lflags = [x for x in lflags if x != '']
