@@ -5,7 +5,7 @@ import subprocess
 
 def pkg_config(libs):
     cflags = []
-    lflags = []
+    lflags = ['-static']
     for lib in libs:
         cflags = cflags + subprocess.check_output(['pkg-config', '--cflags', lib], encoding='utf-8').replace('\n', '').split(' ')
         lflags = lflags + subprocess.check_output(['pkg-config', '--libs', lib], encoding='utf-8').replace('\n', '').split(' ')
