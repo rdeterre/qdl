@@ -4,7 +4,7 @@ import sys
 import subprocess
 
 def pkg_config(libs):
-    cflags = []
+    cflags = ['-fpic']
     lflags = ['-static']
     for lib in libs:
         cflags = cflags + subprocess.check_output(['pkg-config', '--cflags', lib], encoding='utf-8').replace('\n', '').split(' ')
@@ -32,6 +32,6 @@ qdl = Extension('qdl', sources=[
     extra_link_args=lflags)
 
 setup(name = 'qdl',
-      version = '1.0.1',
+      version = '1.0.2',
       description = 'QDL C wrapper',
       ext_modules = [qdl])
