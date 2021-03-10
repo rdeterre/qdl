@@ -43,34 +43,38 @@ def pkg_get_lib_path(lib):
         raise ValueError("Got {} -l for library {}".format(len(names), lib))
     return directory + '/lib' + names[0] + '.a'
 
-cflags = pkg_get_cflags('libusb-1.0') + pkg_get_cflags('libxml-2.0')
-lflags = pkg_get_lib_flags('libxml-2.0')
+def main():
+    cflags = pkg_get_cflags('libusb-1.0') + pkg_get_cflags('libxml-2.0')
+    lflags = pkg_get_lib_flags('libxml-2.0')
 
-extra_objects = []
-if platform.system() == 'Darwin':
-    extra_objects = [pkg_get_lib_path('libusb-1.0')]
-else:
-    lflags = lflags + pkg_get_lib_flags('libusb-1.0')
+    extra_objects = []
+    if platform.system() == 'Darwin':
+        extra_objects = [pkg_get_lib_path('libusb-1.0')]
+    else:
+        lflags = lflags + pkg_get_lib_flags('libusb-1.0')
 
 
-print("C flags: {}".format(cflags))
-print("L flags: {}".format(lflags))
-print("Extra objects: {}".format(extra_objects))
+    print("C flags: {}".format(cflags))
+    print("L flags: {}".format(lflags))
+    print("Extra objects: {}".format(extra_objects))
 
-qdl = Extension('qdl', sources=[
-    'python_qdl.c',
-    'firehose.c',
-    'qdl.c',
-    'sahara.c',
-    'util.c',
-    'patch.c',
-    'program.c',
-    'ufs.c'],
-    extra_compile_args=cflags,
-    extra_link_args=lflags,
-    extra_objects=extra_objects)
+    qdl = Extension('qdl', sources=[
+        'python_qdl.c',
+        'firehose.c',
+        'qdl.c',
+        'sahara.c',
+        'util.c',
+        'patch.c',
+        'program.c',
+        'ufs.c'],
+        extra_compile_args=cflags,
+        extra_link_args=lflags,
+        extra_objects=extra_objects)
 
-setup(name = 'qdl',
-      version = '1.0.2',
-      description = 'QDL C wrapper',
-      ext_modules = [qdl])
+    setup(name = 'qdl',
+          version = '1.0.3',
+          description = 'QDL C wrapper',
+          ext_modules = [qdl])
+
+if __name__ == "__main__":
+    main()
