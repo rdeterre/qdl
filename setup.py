@@ -6,7 +6,11 @@ import subprocess
 
 def _pkgc(args):
     args = ['pkg-config'] + args
-    elements = subprocess.check_output(args, encoding='ascii').replace('\n', '').split(' ')
+    try:
+        elements = subprocess.check_output(args, encoding='ascii').replace('\n', '').split(' ')
+    except subprocess.CalledProcessError as e:
+        print("Calling {} failed with error {}".format(args, e.returncode))
+        return []
     return [x for x in elements if x != '']
 
 def check_and_remove_prefix(prefix, data):
@@ -72,7 +76,7 @@ def main():
         extra_objects=extra_objects)
 
     setup(name = 'qdl',
-          version = '1.0.3',
+          version = '1.0.4',
           description = 'QDL C wrapper',
           ext_modules = [qdl])
 
