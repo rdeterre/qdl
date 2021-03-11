@@ -53,7 +53,10 @@ def main():
 
     extra_objects = []
     if platform.system() == 'Darwin':
-        extra_objects = [pkg_get_lib_path('libusb-1.0')]
+        try:
+            extra_objects = [pkg_get_lib_path('libusb-1.0')]
+        except ValueError as e:
+            print("Could not get lib path: {}".format(e))
     else:
         lflags = lflags + pkg_get_lib_flags('libusb-1.0')
 
@@ -76,7 +79,7 @@ def main():
         extra_objects=extra_objects)
 
     setup(name = 'qdl',
-          version = '1.0.4',
+          version = '1.0.5',
           description = 'QDL C wrapper',
           ext_modules = [qdl])
 
