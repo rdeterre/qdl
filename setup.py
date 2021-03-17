@@ -67,6 +67,7 @@ def main():
 
     qdl = Extension('qdl', sources=[
         'python_qdl.c',
+        'python_logging.c',
         'firehose.c',
         'qdl.c',
         'sahara.c',
@@ -79,7 +80,7 @@ def main():
         extra_objects=extra_objects)
 
     setup(name = 'qdl',
-          version = '1.0.5',
+          version = '1.1.0',
           description = 'QDL C wrapper',
           ext_modules = [qdl])
 

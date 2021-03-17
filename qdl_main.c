@@ -8,9 +8,11 @@
 #include "qdl.h"
 #include "ufs.h"
 
+#include "python_logging.h"
+
 static void print_usage(void) {
   extern const char *__progname;
-  fprintf(stderr,
+  log_msg(log_error,
           "%s [--debug] [--storage <emmc|ufs>] [--finalize-provisioning] "
           "[--include <PATH>] <prog.mbn> [<program> <patch> ...]\n",
           __progname);
@@ -94,7 +96,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  printf("Found device\n");
+  log_msg(log_info, "Found device\n");
 
   ret = sahara_run(&qdl, prog_mbn);
   if (ret < 0) {
@@ -102,14 +104,14 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  printf("Ran Sahara, all good\n");
+  log_msg(log_info, "Ran Sahara, all good\n");
 
   ret = firehose_run(&qdl, incdir, storage);
   if (ret < 0) {
     libusb_exit(NULL);
     return 1;
   }
-  printf("Ran Firehose, we're done!\n");
+  log_msg(log_info, "Ran Firehose, we're done!\n");
 
   return 0;
 }

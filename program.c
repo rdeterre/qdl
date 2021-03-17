@@ -37,7 +37,9 @@
 
 #include "program.h"
 #include "qdl.h"
-		
+
+#include "python_logging.h"
+
 static struct program *programes;
 static struct program *programes_last;
 
@@ -51,7 +53,7 @@ int program_load(const char *program_file)
 
 	doc = xmlReadFile(program_file, NULL, 0);
 	if (!doc) {
-		fprintf(stderr, "[PROGRAM] failed to parse %s\n", program_file);
+		log_msg(log_error, "[PROGRAM] failed to parse %s\n", program_file);
 		return -EINVAL;
 	}
 
@@ -61,7 +63,7 @@ int program_load(const char *program_file)
 			continue;
 
 		if (xmlStrcmp(node->name, (xmlChar*)"program")) {
-			fprintf(stderr, "[PROGRAM] unrecognized tag \"%s\", ignoring\n", node->name);
+			log_msg(log_error, "[PROGRAM] unrecognized tag \"%s\", ignoring\n", node->name);
 			continue;
 		}
 
@@ -78,7 +80,7 @@ int program_load(const char *program_file)
 		program->start_sector = attr_as_string(node, "start_sector", &errors);
 
 		if (errors) {
-			fprintf(stderr, "[PROGRAM] errors while parsing program\n");
+			log_msg(log_error, "[PROGRAM] errors while parsing program\n");
 			free(program);
 			continue;
 		}
@@ -120,7 +122,7 @@ int program_execute(struct qdl_device *qdl, int (*apply)(struct qdl_device *qdl,
 		fd = open(filename, O_RDONLY);
 
 		if (fd < 0) {
-			printf("Unable to open %s...ignoring\n", program->filename);
+			log_msg(log_info, "Unable to open %s...ignoring\n", program->filename);
 			continue;
 		}
 

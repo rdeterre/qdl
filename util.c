@@ -35,6 +35,8 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#include "python_logging.h"
+
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
 static uint8_t to_hex(uint8_t ch)
@@ -77,7 +79,7 @@ void print_hex_dump(const char *prefix, const void *buf, size_t len)
 
 		line[li] = '\0';
 
-		printf("%s %04x: %s\n", prefix, i, line);
+		log_msg(log_info, "%s %04x: %s\n", prefix, i, line);
 	}
 }
 

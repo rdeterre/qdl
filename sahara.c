@@ -46,6 +46,8 @@
 #include <unistd.h>
 #include "qdl.h"
 
+#include "python_logging.h"
+
 struct sahara_pkt {
 	uint32_t cmd;
 	uint32_t length;
@@ -91,7 +93,7 @@ static void sahara_hello(struct qdl_device *qdl, struct sahara_pkt *pkt)
 
 	assert(pkt->length == 0x30);
 
-	printf("HELLO version: 0x%x compatible: 0x%x max_len: %d mode: %d\n",
+	log_msg(log_info, "HELLO version: 0x%x compatible: 0x%x max_len: %d mode: %d\n",
 	       pkt->hello_req.version, pkt->hello_req.compatible, pkt->hello_req.max_len, pkt->hello_req.mode);
 
 	resp.cmd = 2;
@@ -143,7 +145,7 @@ static void sahara_read(struct qdl_device *qdl, struct sahara_pkt *pkt, const ch
 
 	assert(pkt->length == 0x14);
 
-	printf("READ image: %d offset: 0x%x length: 0x%x\n",
+	log_msg(log_info, "READ image: %d offset: 0x%x length: 0x%x\n",
 	       pkt->read_req.image, pkt->read_req.offset, pkt->read_req.length);
 
 	ret = sahara_read_common(qdl, mbn, pkt->read_req.offset, pkt->read_req.length);
@@ -157,7 +159,7 @@ static void sahara_read64(struct qdl_device *qdl, struct sahara_pkt *pkt, const 
 
 	assert(pkt->length == 0x20);
 
-	printf("READ64 image: %" PRId64 " offset: 0x%" PRIx64 " length: 0x%" PRIx64 "\n",
+	log_msg(log_info, "READ64 image: %" PRId64 " offset: 0x%" PRIx64 " length: 0x%" PRIx64 "\n",
 	       pkt->read64_req.image, pkt->read64_req.offset, pkt->read64_req.length);
 
 	ret = sahara_read_common(qdl, mbn, pkt->read64_req.offset, pkt->read64_req.length);
@@ -171,10 +173,10 @@ static void sahara_eoi(struct qdl_device *qdl, struct sahara_pkt *pkt)
 
 	assert(pkt->length == 0x10);
 
-	printf("END OF IMAGE image: %d status: %d\n", pkt->eoi.image, pkt->eoi.status);
+	log_msg(log_info, "END OF IMAGE image: %d status: %d\n", pkt->eoi.image, pkt->eoi.status);
 
 	if (pkt->eoi.status != 0) {
-		printf("received non-successful result\n");
+		log_msg(log_info, "received non-successful result\n");
 		return;
 	}
 
@@ -187,7 +189,7 @@ static int sahara_done(struct qdl_device *qdl, struct sahara_pkt *pkt)
 {
 	assert(pkt->length == 0xc);
 
-	printf("DONE status: %d\n", pkt->done_resp.status);
+	log_msg(log_info, "DONE status: %d\n", pkt->done_resp.status);
 
 	return pkt->done_resp.status;
 }
@@ -207,7 +209,7 @@ int sahara_run(struct qdl_device *qdl, char *prog_mbn)
 
 		pkt = (struct sahara_pkt*)buf;
 		if (n != pkt->length) {
-			fprintf(stderr, "length not matching");
+			log_msg(log_error, "length not matching");
 			return -EINVAL;
 		}
 

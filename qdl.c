@@ -51,6 +51,8 @@
 #include "qdl.h"
 #include "ufs.h"
 
+#include "python_logging.h"
+
 #define MAX_USBFS_BULK_SIZE (16 * 1024)
 
 bool qdl_debug;
@@ -63,7 +65,7 @@ int detect_type(const char *xml_file) {
 
   doc = xmlReadFile(xml_file, NULL, 0);
   if (!doc) {
-    fprintf(stderr, "[PATCH] failed to parse %s\n", xml_file);
+    log_msg(log_error, "[PATCH] failed to parse %s\n", xml_file);
     return -EINVAL;
   }
 
@@ -103,7 +105,7 @@ int parse_sc20_device(libusb_device *device, struct qdl_device *qdl, int *intf,
   size_t out_size;
 
   if ((err = libusb_get_device_descriptor(device, &ddesc))) {
-    fprintf(stderr, "Could not get device descriptor\n");
+    log_msg(log_error, "Could not get device descriptor\n");
     return err;
   }
 
@@ -118,7 +120,7 @@ int parse_sc20_device(libusb_device *device, struct qdl_device *qdl, int *intf,
   }
 
   if ((err = libusb_get_active_config_descriptor(device, &cdesc))) {
-    fprintf(stderr, "Could not get device config descriptor\n");
+    log_msg(log_error, "Could not get device config descriptor\n");
     return err;
   }
 
@@ -175,7 +177,7 @@ int find_device(struct qdl_device *qdl) {
   int intf;
 
   if (cnt < 0) {
-    fprintf(stderr, "No USB device found\n");
+    log_msg(log_error, "No USB device found\n");
     libusb_free_device_list(list, 1);
     return -ENOENT;
   }
@@ -185,7 +187,7 @@ int find_device(struct qdl_device *qdl) {
 
     bool is_an_sc20 = false;
     if ((err = parse_sc20_device(device, qdl, &intf, &is_an_sc20))) {
-      fprintf(stderr, "Could not parse SC20 device\n");
+      log_msg(log_error, "Could not parse SC20 device\n");
       libusb_free_device_list(list, 1);
       return err;
     }
@@ -197,19 +199,19 @@ int find_device(struct qdl_device *qdl) {
   }
 
   if (!found) {
-    fprintf(stderr, "Device not found");
+    log_msg(log_error, "Device not found");
     return -ENOENT;
   }
 
   err = libusb_open(found, &qdl->device);
   if (err) {
-    fprintf(stderr, "Could not open USB device\n");
+    log_msg(log_error, "Could not open USB device\n");
     return err;
   }
 
   libusb_detach_kernel_driver(qdl->device, intf);
   if ((err = libusb_claim_interface(qdl->device, intf))) {
-    fprintf(stderr, "Could not claim USB interface");
+    log_msg(log_error, "Could not claim USB interface");
     return err;
   }
 
@@ -223,7 +225,7 @@ int qdl_read(struct qdl_device *qdl, void *buf, size_t len,
   int err =
       libusb_bulk_transfer(qdl->device, qdl->in_ep, buf, len, &n, timeout);
   if (err) {
-    // printf("QDL read failed: %d\n", err);
+    // log_msg(log_info, "QDL read failed: %d\n", err);
     return -1;
   }
   return n;
@@ -239,7 +241,7 @@ int qdl_write(struct qdl_device *qdl, const void *buf, size_t len, bool eot) {
   if (len == 0) {
     n = libusb_bulk_transfer(qdl->device, qdl->out_ep, data, 0, NULL, 1000);
     if (n != 0) {
-      fprintf(stderr, "ERROR: n = %d, errno = %d (%s)\n", n, errno,
+      log_msg(log_error, "ERROR: n = %d, errno = %d (%s)\n", n, errno,
               strerror(errno));
       return -1;
     }
@@ -252,11 +254,11 @@ int qdl_write(struct qdl_device *qdl, const void *buf, size_t len, bool eot) {
 
     err = libusb_bulk_transfer(qdl->device, qdl->out_ep, data, xfer, &n, 1000);
     if (err != 0) {
-      fprintf(stderr, "ERROR: bulk write transfer failed: %d\n", err);
+      log_msg(log_error, "ERROR: bulk write transfer failed: %d\n", err);
       return -1;
     }
     if (n != xfer) {
-      fprintf(stderr, "ERROR: n = %d, errno = %d (%s)\n", n, errno,
+      log_msg(log_error, "ERROR: n = %d, errno = %d (%s)\n", n, errno,
               strerror(errno));
       return -1;
     }
@@ -268,7 +270,7 @@ int qdl_write(struct qdl_device *qdl, const void *buf, size_t len, bool eot) {
   if (eot && (len_orig % qdl->out_maxpktsize) == 0) {
     err = libusb_bulk_transfer(qdl->device, qdl->out_ep, NULL, 0, &n, 1000);
     if (err != 0) {
-      fprintf(stderr, "ERROR: last bulk write transfer failed\n");
+      log_msg(log_error, "ERROR: last bulk write transfer failed\n");
       return -1;
     }
     if (n < 0)

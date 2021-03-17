@@ -35,7 +35,9 @@
 
 #include "patch.h"
 #include "qdl.h"
-		
+
+#include "python_logging.h"
+
 static struct patch *patches;
 static struct patch *patches_last;
 
@@ -49,7 +51,7 @@ int patch_load(const char *patch_file)
 
 	doc = xmlReadFile(patch_file, NULL, 0);
 	if (!doc) {
-		fprintf(stderr, "[PATCH] failed to parse %s\n", patch_file);
+		log_msg(log_error, "[PATCH] failed to parse %s\n", patch_file);
 		return -EINVAL;
 	}
 
@@ -59,7 +61,7 @@ int patch_load(const char *patch_file)
 			continue;
 
 		if (xmlStrcmp(node->name, (xmlChar*)"patch")) {
-			fprintf(stderr, "[PATCH] unrecognized tag \"%s\", ignoring\n", node->name);
+			log_msg(log_error, "[PATCH] unrecognized tag \"%s\", ignoring\n", node->name);
 			continue;
 		}
 
@@ -77,7 +79,7 @@ int patch_load(const char *patch_file)
 		patch->what = attr_as_string(node, "what", &errors);
 
 		if (errors) {
-			fprintf(stderr, "[PATCH] errors while parsing patch\n");
+			log_msg(log_error, "[PATCH] errors while parsing patch\n");
 			free(patch);
 			continue;
 		}
