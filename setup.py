@@ -80,7 +80,7 @@ def main():
         extra_objects=extra_objects)
 
     setup(name = 'qdl',
-          version = '1.1.1',
+          version = '1.1.2',
           description = 'QDL C wrapper',
           ext_modules = [qdl])
 
