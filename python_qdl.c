@@ -1,6 +1,7 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
+#include "python_logging.h"
 #include "qdl.h"
 
 // "%s [--debug] [--storage <emmc|ufs>] [--finalize-provisioning] [--include
