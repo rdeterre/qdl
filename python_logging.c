@@ -7,13 +7,9 @@
 
 PyThreadState *_save;
 
-void begin_allow_threads() {
-  _save = PyEval_SaveThread();
-}
+void begin_allow_threads() { _save = PyEval_SaveThread(); }
 
-void end_allow_threads() {
-  PyEval_RestoreThread(_save);
-}
+void end_allow_threads() { PyEval_RestoreThread(_save); }
 
 void log_msg(int type, char *format, ...) {
   static PyObject *logging = NULL;
@@ -23,6 +19,7 @@ void log_msg(int type, char *format, ...) {
   va_list args;
   va_start(args, format);
 
+  end_allow_threads();
   // import logging module on demand
   if (logging == NULL) {
     logging = PyImport_ImportModuleNoBlock("logging");
@@ -30,9 +27,9 @@ void log_msg(int type, char *format, ...) {
       PyErr_SetString(PyExc_ImportError, "Could not import module 'logging'");
   }
 
+  memset(&buffer[0], 0, BUFFER_SIZE);
   vsnprintf(&buffer[0], BUFFER_SIZE, format, args);
 
-  end_allow_threads();
   // build msg-string
   string = Py_BuildValue("s", &buffer[0]);
 

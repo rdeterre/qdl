@@ -56,12 +56,19 @@ static PyObject *qdl_run(PyObject *self, PyObject *args) {
   }
 
   begin_allow_threads();
-  libusb_init(NULL);
+  ret = libusb_init(NULL);
   end_allow_threads();
+  if (ret) {
+    PyErr_Format(PyExc_RuntimeError, "Could not load libusb. Error %d", ret);
+    return NULL;
+  }
+
+  begin_allow_threads();
   ret = find_device(&qdl);
+  end_allow_threads();
   if (ret) {
     libusb_exit(NULL);
-    PyErr_Format(PyExc_RuntimeError, "Could not load libusb. Error %d", ret);
+    PyErr_Format(PyExc_RuntimeError, "Could not find device. Error %d", ret);
     return NULL;
   }
 
@@ -70,6 +77,7 @@ static PyObject *qdl_run(PyObject *self, PyObject *args) {
   end_allow_threads();
   if (ret < 0) {
     libusb_exit(NULL);
+    return Py_None;
     PyErr_Format(PyExc_RuntimeError, "Could not run Sahara. Error %d\n", ret);
     return NULL;
   }
