@@ -66,15 +66,20 @@ def main():
     print("Extra objects: {}".format(extra_objects))
 
     qdl = Extension('qdl', sources=[
-        'python_qdl.c',
-        'python_logging.c',
         'firehose.c',
-        'qdl.c',
-        'sahara.c',
-        'util.c',
         'patch.c',
+        'patch.h',
         'program.c',
-        'ufs.c'],
+        'program.h',
+        'python_logging.c',
+        'python_logging.h',
+        'python_qdl.c',
+        'qdl.c',
+        'qdl.h',
+        'sahara.c',
+        'ufs.c',
+        'ufs.h',
+        'util.c'],
         extra_compile_args=cflags,
         extra_link_args=lflags,
         extra_objects=extra_objects)
