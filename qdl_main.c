@@ -12,7 +12,7 @@
 
 static void print_usage(void) {
   extern const char *__progname;
-  log_msg(log_error,
+  log_msg(log_info,
           "%s [--debug] [--storage <emmc|ufs>] [--finalize-provisioning] "
           "[--include <PATH>] <prog.mbn> [<program> <patch> ...]\n",
           __progname);

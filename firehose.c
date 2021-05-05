@@ -134,7 +134,7 @@ static int firehose_read(struct qdl_device *qdl, int wait, int (*response_parser
 		buf[n] = '\0';
 
 		if (qdl_debug)
-			log_msg(log_error, "FIREHOSE READ: %s\n", buf);
+			log_msg(log_info, "FIREHOSE READ: %s\n", buf);
 
 		for (msg = buf; msg[0]; msg = end) {
 			end = strstr(msg, "</data>");
@@ -184,7 +184,7 @@ static int firehose_write(struct qdl_device *qdl, xmlDoc *doc)
 	xmlDocDumpMemory(doc, &s, &len);
 
 	if (qdl_debug)
-		log_msg(log_error, "FIREHOSE WRITE: %s\n", s);
+		log_msg(log_info, "FIREHOSE WRITE: %s\n", s);
 
 	ret = qdl_write(qdl, s, len, true);
 	saved_errno = errno;
@@ -280,7 +280,7 @@ static int firehose_configure(struct qdl_device *qdl, bool skip_storage_init, co
 	}
 
 	if (qdl_debug) {
-		log_msg(log_error, "[CONFIGURE] max payload size: %zu\n",
+		log_msg(log_info, "[CONFIGURE] max payload size: %zu\n",
 			max_payload_size);
 	}
 
@@ -314,7 +314,7 @@ static int firehose_program(struct qdl_device *qdl, struct program *program, int
 	num_sectors = (sb.st_size + program->sector_size - 1) / program->sector_size;
 
 	if (program->num_sectors && num_sectors > program->num_sectors) {
-		log_msg(log_error, "[PROGRAM] %s truncated to %d\n",
+		log_msg(log_info, "[PROGRAM] %s truncated to %d\n",
 			program->label,
 			program->num_sectors * program->sector_size);
 		num_sectors = program->num_sectors;
@@ -378,12 +378,12 @@ static int firehose_program(struct qdl_device *qdl, struct program *program, int
 	if (ret) {
 		log_msg(log_error, "[PROGRAM] failed\n");
 	} else if (t) {
-		log_msg(log_error,
+		log_msg(log_info,
 			"[PROGRAM] flashed \"%s\" successfully at %ldkB/s\n",
 			program->label,
 			program->sector_size * num_sectors / t / 1024);
 	} else {
-		log_msg(log_error, "[PROGRAM] flashed \"%s\" successfully\n",
+		log_msg(log_info, "[PROGRAM] flashed \"%s\" successfully\n",
 			program->label);
 	}
 
@@ -591,7 +591,7 @@ int firehose_run(struct qdl_device *qdl, const char *incdir, const char *storage
 		if (!ret)
 			log_msg(log_info, "UFS provisioning succeeded\n");
 		else
-			log_msg(log_info, "UFS provisioning failed\n");
+			log_msg(log_error, "UFS provisioning failed\n");
 		return ret;
 	}
 
