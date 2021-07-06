@@ -1,10 +1,14 @@
 from setuptools import setup, Extension
 
+from glob import glob
+from shutil import copy
 import platform
+import os
 import sys
 import subprocess
 
 def _pkgc(args):
+    '''Calls the pkg-config command with the args as arguments'''
     args = ['pkg-config'] + args
     try:
         elements = subprocess.check_output(args, encoding='ascii').replace('\n', '').split(' ')
@@ -47,23 +51,30 @@ def pkg_get_lib_path(lib):
         raise ValueError("Got {} -l for library {}".format(len(names), lib))
     return directory + '/lib' + names[0] + '.a'
 
+def pkg_get_dylib_paths(lib):
+    dirs = pkgc_get_lib_paths(lib)
+    names = pkgc_get_libs(lib)
+    result = []
+    for directory in dirs:
+        for name in names:
+            result = result + glob('{}/*{}*.dylib'.format(directory, name))
+    return result
+
 def main():
     cflags = pkg_get_cflags('libusb-1.0') + pkg_get_cflags('libxml-2.0')
-    lflags = pkg_get_lib_flags('libxml-2.0')
+    lflags = pkg_get_lib_flags('libxml-2.0') + pkg_get_lib_flags('libusb-1.0')
+    files_to_package = []
 
-    extra_objects = []
     if platform.system() == 'Darwin':
-        try:
-            extra_objects = [pkg_get_lib_path('libusb-1.0')]
-        except ValueError as e:
-            print("Could not get lib path: {}".format(e))
-    else:
-        lflags = lflags + pkg_get_lib_flags('libusb-1.0')
+        files_to_package = pkg_get_dylib_paths('libusb-1.0')
+        if not files_to_package:
+            raise ValueError('Could not identify any library to copy')
+
 
 
     print("C flags: {}".format(cflags))
     print("L flags: {}".format(lflags))
-    print("Extra objects: {}".format(extra_objects))
+    print("Files to package: {}".format(files_to_package))
 
     qdl = Extension('qdl', sources=[
         'firehose.c',
@@ -77,7 +88,7 @@ def main():
         'util.c'],
         extra_compile_args=cflags,
         extra_link_args=lflags,
-        extra_objects=extra_objects)
+        extra_objects=files_to_package)
 
     setup(name = 'qdl',
           version = '1.1.7',
