@@ -108,9 +108,18 @@ int program_execute(struct qdl_device *qdl, int (*apply)(struct qdl_device *qdl,
 	int ret;
 	int fd;
 
+  int program_count = 0;
+  for (program = programes; program; program = program->next) {
+		if (!program->filename)
+			continue;
+    ++program_count;
+	}
+
+  int current_program = 0;
 	for (program = programes; program; program = program->next) {
 		if (!program->filename)
 			continue;
+    log_msg(log_info, "[PROGRAM] %d/%d\n", ++current_program, program_count);
 
 		filename = program->filename;
 		if (incdir) {
