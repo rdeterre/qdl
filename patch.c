@@ -103,23 +103,14 @@ int patch_execute(struct qdl_device *qdl, int (*apply)(struct qdl_device *qdl, s
 	struct patch *patch;
 	int ret;
 
-  int patch_count = 0;
-  for (patch = patches; patch; patch = patch->next) {
-    if (strcmp(patch->filename, "DISK"))
-      continue;
-    ++patch_count;
-  }
+	for (patch = patches; patch; patch = patch->next) {
+		if (strcmp(patch->filename, "DISK"))
+			continue;
 
-  int current_patch = 0;
-  for (patch = patches; patch; patch = patch->next) {
-    if (strcmp(patch->filename, "DISK"))
-      continue;
-    log_msg(log_error, "[PATCH] %d/%d\n", ++current_patch, patch_count);
-
-    ret = apply(qdl, patch);
-    if (ret)
-      return ret;
-  }
+		ret = apply(qdl, patch);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
