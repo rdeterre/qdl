@@ -98,15 +98,16 @@ int program_load(const char *program_file)
 
 	return 0;
 }
-	
-int program_execute(struct qdl_device *qdl, int (*apply)(struct qdl_device *qdl, struct program *program, int fd),
-		    const char *incdir)
-{
-	struct program *program;
-	const char *filename;
-	char tmp[PATH_MAX];
-	int ret;
-	int fd;
+
+int program_execute(struct qdl_device *qdl,
+                    int (*apply)(struct qdl_device *qdl,
+                                 struct program *program, int fd),
+                    const char *incdir, void *progress_callback_context) {
+  struct program *program;
+  const char *filename;
+  char tmp[PATH_MAX];
+  int ret;
+  int fd;
 
   int program_count = 0;
   for (program = programes; program; program = program->next) {
@@ -120,6 +121,7 @@ int program_execute(struct qdl_device *qdl, int (*apply)(struct qdl_device *qdl,
 		if (!program->filename)
 			continue;
     log_msg(log_info, "[PROGRAM] %d/%d\n", ++current_program, program_count);
+    progress_callback(progress_callback_context, current_program, program_count);
 
 		filename = program->filename;
 		if (incdir) {

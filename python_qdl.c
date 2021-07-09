@@ -4,6 +4,15 @@
 #include "python_logging.h"
 #include "qdl.h"
 
+void progress_callback(void* context, int current, int total) {
+  if (!context) return;
+  end_allow_threads();
+  PyObject *py_callback = (PyObject *)context;
+  const PyObject* arglist = Py_BuildValue("(ii)", current, total);
+  PyEval_CallObject(py_callback, arglist);
+  begin_allow_threads();
+}
+
 // "%s [--debug] [--storage <emmc|ufs>] [--finalize-provisioning] [--include
 // <PATH>] <prog.mbn> [<program> <patch> ...]\n",
 //
@@ -17,9 +26,12 @@ static PyObject *qdl_run(PyObject *self, PyObject *args) {
   int type;
   int ret;
   struct qdl_device qdl;
+  PyObject *py_progress_callback;
 
-  if (!PyArg_ParseTuple(args, "ssss", &storage, &mbn, &program, &patch))
+  if (!PyArg_ParseTuple(args, "ssssO", &storage, &mbn, &program, &patch, &py_progress_callback))
     return NULL;
+
+  void* v_progress_callback = (void*) py_progress_callback;
 
   begin_allow_threads();
   type = detect_type(program);
@@ -83,7 +95,7 @@ static PyObject *qdl_run(PyObject *self, PyObject *args) {
   }
 
   begin_allow_threads();
-  ret = firehose_run(&qdl, NULL, storage);
+  ret = firehose_run(&qdl, NULL, storage, v_progress_callback);
   end_allow_threads();
   if (ret < 0) {
     libusb_exit(NULL);

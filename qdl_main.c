@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
 
   log_msg(log_info, "Ran Sahara, all good\n");
 
-  ret = firehose_run(&qdl, incdir, storage);
+  ret = firehose_run(&qdl, incdir, storage, NULL);
   if (ret < 0) {
     libusb_exit(NULL);
     return 1;

@@ -18,7 +18,7 @@ struct program {
 
 int program_load(const char *program_file);
 int program_execute(struct qdl_device *qdl, int (*apply)(struct qdl_device *qdl, struct program *program, int fd),
-		    const char *incdir);
+                    const char *incdir, void* progress_callback_context);
 int program_find_bootable_partition(void);
-
+void progress_callback(void *context, int current, int total);
 #endif

@@ -91,7 +91,7 @@ def main():
         extra_objects=files_to_package)
 
     setup(name = 'qdl',
-          version = '1.1.7',
+          version = '1.2.0',
           description = 'QDL C wrapper',
           ext_modules = [qdl])
 

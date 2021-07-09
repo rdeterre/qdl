@@ -572,7 +572,7 @@ static int firehose_reset(struct qdl_device *qdl)
 	return firehose_read(qdl, -1, firehose_nop_parser);
 }
 
-int firehose_run(struct qdl_device *qdl, const char *incdir, const char *storage)
+int firehose_run(struct qdl_device *qdl, const char *incdir, const char *storage, void* progress_callback_context)
 {
 	int bootable;
 	int ret;
@@ -599,7 +599,7 @@ int firehose_run(struct qdl_device *qdl, const char *incdir, const char *storage
 	if (ret)
 		return ret;
 
-	ret = program_execute(qdl, firehose_program, incdir);
+	ret = program_execute(qdl, firehose_program, incdir, progress_callback_context);
 	if (ret)
 		return ret;
 
